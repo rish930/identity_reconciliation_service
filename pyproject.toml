@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "identity-reconciliation-service"
+version = "0.1.0"
+description = ""
+authors = ["rish930 <rishabh930@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.10"
+fastapi = "^0.109.2"
+pytest = "^8.0.1"
+uvicorn = "^0.27.1"
+httpx = "^0.26.0"
+sqlalchemy = "^2.0.27"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

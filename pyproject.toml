@@ -12,6 +12,9 @@ pytest = "^8.0.1"
 uvicorn = "^0.27.1"
 httpx = "^0.26.0"
 sqlalchemy = "^2.0.27"
+pydantic-settings = "^2.2.0"
+python-dotenv = "^1.0.1"
+psycopg2-binary = "^2.9.9"
 
 
 [build-system]

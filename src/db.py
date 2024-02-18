@@ -1,10 +1,10 @@
-from src.config import Settings
+from src.config import settings
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-SQLALCHEMY_DB_URI = Settings.SQL_DB_URI
+SQLALCHEMY_DB_URI = settings.SQL_DB_URI.unicode_string()
 
 engine = create_engine(SQLALCHEMY_DB_URI)
 

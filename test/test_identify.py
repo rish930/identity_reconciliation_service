@@ -40,45 +40,50 @@ class TestIdentify:
         _request = {"email": "lorraine@hillvalley.edu", "phoneNumber":123456}
         contact_response = self.client.post(url=self._url, json=_request)
 
-        contact_response_json = contact_response.json()
+        contact_response_json = contact_response.json()["contact"]
         assert contact_response_json["primaryContactId"] == primary_contact.id
         assert contact_response_json["emails"] == [primary_contact.email]
         assert contact_response_json["phoneNumbers"] == [primary_contact.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == []
 
 
     def test_identify_secondary(self, secondary_contact):
         _request = {"email": "mcfly@hillvalley.edu", "phoneNumber":123456}
         contact_response = self.client.post(url=self._url, json=_request)
-        contact_response_json = contact_response.json()
+        contact_response_json = contact_response.json()["contact"]
         assert contact_response_json["primaryContactId"] == self.primary_contact.id
         assert contact_response_json["emails"] == [self.primary_contact.email, secondary_contact.email]
         assert contact_response_json["phoneNumbers"] == [secondary_contact.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == [secondary_contact.id]
 
 
     def test_identify_secondary_email_null(self, primary_contact):
         _request = {"email": None, "phoneNumber":123456}
         contact_response = self.client.post(url=self._url, json=_request)
-        contact_response_json = contact_response.json()
+        contact_response_json = contact_response.json()["contact"]
         assert contact_response_json["primaryContactId"] == primary_contact.id
         assert contact_response_json["emails"] == [primary_contact.email]
         assert contact_response_json["phoneNumbers"] == [primary_contact.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == []
 
 
     def test_identify_create_new_primary(self):
         _request = {"email": None, "phoneNumber":123456}
         contact_response = self.client.post(url=self._url, json=_request)
-        contact_response_json = contact_response.json()
+        contact_response_json = contact_response.json()["contact"]
         assert contact_response_json["primaryContactId"] == 1
         assert contact_response_json["emails"] == []
         assert contact_response_json["phoneNumbers"] == [str(_request["phoneNumber"])]
+        assert contact_response_json["secondaryContactIds"] == []
 
     def test_identify_create_new_secondary(self, primary_contact):
         _request = {"email": "something@hey.com", "phoneNumber":123456}
         contact_response = self.client.post(url=self._url, json=_request)
-        contact_response_json = contact_response.json()
+        contact_response_json = contact_response.json()["contact"]
         assert contact_response_json["primaryContactId"] == 1
         assert contact_response_json["emails"] == [primary_contact.email, _request["email"]]
         assert contact_response_json["phoneNumbers"] == [primary_contact.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == [2]
 
     def test_identify_create_convert_primary_to_secondary(self, primary_contact):
         second_primary = Contact(email="secondprimary@hey.com", phonenumber="789123", linkprecedence=LinkPrecedence.PRIMARY)
@@ -87,10 +92,11 @@ class TestIdentify:
 
         _request = {"email": second_primary.email, "phoneNumber":int(primary_contact.phonenumber)}
         contact_response = self.client.post(url=self._url, json=_request)
-        contact_response_json = contact_response.json()
+        contact_response_json = contact_response.json()["contact"]
         assert contact_response_json["primaryContactId"] == 1
         assert contact_response_json["emails"] == [primary_contact.email, second_primary.email]
         assert contact_response_json["phoneNumbers"] == [primary_contact.phonenumber, second_primary.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == [second_primary.id]
 
         self.session.refresh(second_primary)
         assert second_primary.linkprecedence == LinkPrecedence.SECONDARY

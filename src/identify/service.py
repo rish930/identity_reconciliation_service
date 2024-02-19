@@ -7,8 +7,6 @@ import logging
 logging.getLogger().setLevel(logging.INFO)
 
 def get_consolidated_contact(email: str, phone_number: int, db: Session):
-    # check if contact exists
-        # email and phone_number
     if phone_number is not None:
         phone_number = str(phone_number)
     if email is not None:
@@ -98,6 +96,8 @@ def consolidate(primary_contact, secondary_contacts: List[Contact]):
         if phone_number!=None and phone_number not in phone_number_done:
             out.phoneNumbers.append(contact.phonenumber)
             phone_number_done.add(phone_number)
+        
+        out.secondaryContactIds.append(contact.id)
     
     return out
 

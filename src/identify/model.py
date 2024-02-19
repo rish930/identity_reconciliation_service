@@ -1,10 +1,12 @@
 from src.db import Base
 from sqlalchemy import Column
 
-from sqlalchemy import Integer, String, Enum, TIMESTAMP, DateTime, ForeignKey
-from enum import Enum
+from sqlalchemy import Integer, String, Enum, TIMESTAMP, DateTime, ForeignKey, UniqueConstraint
+import enum
+from sqlalchemy.sql import func
 
-class LinkPrecedence(Enum):
+
+class LinkPrecedence(enum.Enum):
     PRIMARY = "primary"
     SECONDARY = "secondary"
 
@@ -15,14 +17,15 @@ class Contact(Base):
     id = Column(Integer, primary_key=True)
     phonenumber = Column(String, nullable=True)
     email = Column(String, nullable=True)
-    linkedid =  Column(Integer, nullable=True) # TODO should be FK in same table
-    linkprecedence =  Column(String, nullable=True)
-    createdat = Column(DateTime, nullable=False) # TODO replace with default timestamp
-    updatedat = Column(DateTime, nullable=True)
-    deletedat = Column(DateTime, nullable=True)
+    linkedid =  Column(Integer, ForeignKey('contact.id'), nullable=True)
+    linkprecedence =  Column(Enum(LinkPrecedence), nullable=True)
+    create_date = Column(DateTime, nullable=False, server_default=func.now())
+    update_date = Column(DateTime, nullable=True, onupdate=func.now())
+    delete_date = Column(DateTime, nullable=True)
 
-    # TODO add uniqueness constraint to (email, phonenumber)
-
+    __table_args__ = (
+        UniqueConstraint("email", "phonenumber", name="uix_email_phonenumber_1"),
+    )
 
 class ContactPrimary(Base):
     __tablename__ = "contact_primary"

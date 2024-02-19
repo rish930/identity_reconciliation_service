@@ -1,0 +1,1 @@
+sudo -u postgres psql -f scripts/setup_db.sql

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
 class TestSettings(Settings):
 
-    SQL_DB_URI: Optional[PostgresDsn] = "postgresql://bitespeed_user:bitespeed1234@localhost/fluxkart_customer_db"
+    SQL_DB_URI: Optional[PostgresDsn] = "postgresql://bitespeed_test:bitespeedtest@localhost/fluxkart_customer_test_db"
     SQL_ENGINE_ECHO: bool = True
 
 

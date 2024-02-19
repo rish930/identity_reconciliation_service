@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 class TestSettings(Settings):
 
     SQL_DB_URI: Optional[PostgresDsn] = "postgresql://bitespeed_test:bitespeedtest@localhost/fluxkart_customer_test_db"
-    SQL_ENGINE_ECHO: bool = True
+    SQL_ENGINE_ECHO: bool = False
 
 
 def get_settings():

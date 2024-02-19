@@ -4,19 +4,57 @@ from typing import List
 from .schema import ContactDetails
 import logging
 
+logging.getLogger().setLevel(logging.INFO)
 
-def get_consolidated_contact(email: str, phoneNumber: str, db: Session):
+def get_consolidated_contact(email: str, phone_number: int, db: Session):
     # check if contact exists
-        # email and phoneNumber
+        # email and phone_number
+    if phone_number is not None:
+        phone_number = str(phone_number)
+    if email is not None:
+        email = str(email)
+
     contact = is_contact_exists(email=email, 
-                                 phoneNumber=phoneNumber, 
+                                 phone_number=phone_number,
                                  db=db)
-    
-    if contact.linkprecedence==LinkPrecedence.PRIMARY:
-        primary = contact
+    if contact is not None:
+        logging.info("record with same email and phonenumber exists")
+        if contact.linkprecedence==LinkPrecedence.PRIMARY:
+            primary = contact
+            db.commit()
+            out = consolidate(primary, [])
+            return out
+        else:
+            primary = get_contact_by_id(id=contact.linkedid, db=db)
     else:
-        primary = get_contact_by_id(id=contact.linkedid, db=db)
-    
+        logging.info("Contact does not exists")
+        primary_contacts = get_primary_contacts(email=email, phone_number=phone_number, 
+                                              db=db)
+        if len(primary_contacts)==0:
+            logging.info("Creating new primary")
+            primary = Contact(email=email, phonenumber=phone_number, linkprecedence=LinkPrecedence.PRIMARY)
+            db.add(primary)
+
+        elif len(primary_contacts)==1:
+            logging.info("Primary exists")
+            primary = primary_contacts[0]
+            if email!=None and phone_number!=None:
+                logging.info("Creating new secondary")
+                new_contact = Contact(email=email, phonenumber=phone_number, linkedid=primary.id, linkprecedence=LinkPrecedence.SECONDARY)
+                db.add(new_contact)
+        
+        elif len(primary_contacts)==2:
+            logging.info("Multiple Primary, converting one to secondary")
+            primary = primary_contacts[0]
+            primary2 = primary_contacts[1]
+            primary2.linkedid = primary.id
+            primary2.linkprecedence = LinkPrecedence.SECONDARY
+        
+        else:
+            raise Exception("Something wrong with db, more than 2 primary contacts found!")
+        
+    db.commit()
+
     secondary_contacts = get_all_secondary_contacts(primary_contact_id=primary.id, db=db)
 
     consolidated_contacts = consolidate(primary, secondary_contacts)
@@ -64,9 +102,9 @@ def consolidate(primary_contact, secondary_contacts: List[Contact]):
     return out
 
 
-def is_contact_exists(email: str, phoneNumber: str, db: Session):
+def is_contact_exists(email: str, phone_number: str, db: Session):
     
-    query = db.query(Contact).filter(Contact.email == email, Contact.phonenumber==str(phoneNumber))
+    query = db.query(Contact).filter(Contact.email == email, Contact.phonenumber==phone_number)
     contacts = query.first()
     return contacts
 
@@ -74,3 +112,23 @@ def is_contact_exists(email: str, phoneNumber: str, db: Session):
 def get_contact_by_id(id: int, db: Session):
     logging.info("get_contact_by_id..........")
     return db.query(Contact).filter_by(id=id).first()
+
+
+def get_primary_contacts(email: str, phone_number: str, db: Session):
+    logging.info("Getting primary contacts")
+    if email!=None and phone_number!=None:
+        query = db.query(Contact).filter((Contact.email == email) | (Contact.phonenumber==str(phone_number)))
+
+    elif email==None and phone_number!=None:
+        query = db.query(Contact).filter(Contact.phonenumber==phone_number)
+    elif email!=None and phone_number==None:
+        query = db.query(Contact).filter(Contact.email==email)
+    else:
+        query = None
+    
+    if query:
+        contacts = query.filter(Contact.linkprecedence==LinkPrecedence.PRIMARY).all()
+    else:
+        contacts = []
+    
+    return contacts

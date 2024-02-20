@@ -47,6 +47,8 @@ def get_consolidated_contact(email: str, phone_number: int, db: Session):
             primary2 = primary_contacts[1]
             primary2.linkedid = primary.id
             primary2.linkprecedence = LinkPrecedence.SECONDARY
+            # update all secondary contacts having primary2.id as linkedId to primary.id
+            update_secondary_contacts(linkedid=primary2.id, new_linkedid=primary.id, db=db)
         
         else:
             raise Exception("Something wrong with db, more than 2 primary contacts found!")
@@ -145,3 +147,8 @@ def get_oldest_primary_contact(contact: Contact, db: Session):
             return contact1
     else:
         return None
+    
+def update_secondary_contacts(linkedid: int, new_linkedid: int, db: Session):
+    db.query(Contact).\
+        filter(Contact.linkedid==linkedid).\
+            update({Contact.linkedid: new_linkedid})

@@ -6,7 +6,7 @@ import logging
 
 logging.getLogger().setLevel(logging.INFO)
 
-def get_consolidated_contact(email: str, phone_number: int, db: Session):
+def get_consolidated_contact(email: str, phone_number: int, db: Session) -> ContactDetails:
     if phone_number is not None:
         phone_number = str(phone_number)
     if email is not None:
@@ -61,12 +61,12 @@ def get_consolidated_contact(email: str, phone_number: int, db: Session):
     
     return consolidated_contacts
 
-def get_all_secondary_contacts(primary_contact_id: int, db: Session):
+def get_all_secondary_contacts(primary_contact_id: int, db: Session) -> List[Contact]:
     secondary_contacts = db.query(Contact).filter(Contact.linkedid==primary_contact_id).order_by(Contact.id).all()
 
     return secondary_contacts
 
-def consolidate(primary_contact, secondary_contacts: List[Contact]):
+def consolidate(primary_contact, secondary_contacts: List[Contact]) -> ContactDetails:
     
     out = ContactDetails(**{"primaryContactId": primary_contact.id,
      "emails":[],
@@ -104,19 +104,19 @@ def consolidate(primary_contact, secondary_contacts: List[Contact]):
     return out
 
 
-def is_contact_exists(email: str, phone_number: str, db: Session):
+def is_contact_exists(email: str, phone_number: str, db: Session) -> Contact:
     
     query = db.query(Contact).filter(Contact.email == email, Contact.phonenumber==phone_number)
-    contacts = query.first()
-    return contacts
+    contact = query.first()
+    return contact
 
 
-def get_contact_by_id(id: int, db: Session):
+def get_contact_by_id(id: int, db: Session) -> Contact:
     logging.info("get_contact_by_id..........")
     return db.query(Contact).filter_by(id=id).first()
 
 
-def get_primary_contacts(email: str, phone_number: str, db: Session):
+def get_primary_contacts(email: str, phone_number: str, db: Session) -> List[Contact]:
     """
     returns list of unique primary contacts sorted in ascending order w.r.t id
     """
@@ -138,7 +138,7 @@ def get_primary_contacts(email: str, phone_number: str, db: Session):
     return contacts
 
 
-def get_oldest_primary_contact(contact: Contact, db: Session):
+def get_oldest_primary_contact(contact: Contact, db: Session) -> Contact:
     if contact!=None:
         if contact.linkprecedence==LinkPrecedence.PRIMARY:
             return contact
@@ -148,7 +148,7 @@ def get_oldest_primary_contact(contact: Contact, db: Session):
     else:
         return None
     
-def update_secondary_contacts(linkedid: int, new_linkedid: int, db: Session):
+def update_secondary_contacts(linkedid: int, new_linkedid: int, db: Session) -> None:
     db.query(Contact).\
         filter(Contact.linkedid==linkedid).\
             update({Contact.linkedid: new_linkedid})

@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, NonNegativeInt
 from typing import List, Optional
 
 
 class IdentifyRequest(BaseModel):
     email: Optional[EmailStr] = None
-    phoneNumber: Optional[int] = None
+    phoneNumber: Optional[NonNegativeInt] = None
 
 
 class ContactDetails(BaseModel):

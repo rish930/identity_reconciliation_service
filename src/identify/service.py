@@ -62,7 +62,7 @@ def get_consolidated_contact(email: str, phone_number: int, db: Session):
     return consolidated_contacts
 
 def get_all_secondary_contacts(primary_contact_id: int, db: Session):
-    secondary_contacts = db.query(Contact).filter(Contact.linkedid==primary_contact_id).all()
+    secondary_contacts = db.query(Contact).filter(Contact.linkedid==primary_contact_id).order_by(Contact.id).all()
 
     return secondary_contacts
 

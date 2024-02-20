@@ -9,6 +9,7 @@ app.include_router(identify_router)
 
 Base.metadata.create_all(engine)
 
+
 @app.get("/")
 def health_check():
     return "Identify Reconciliation Service is LIVE!!"

@@ -19,12 +19,12 @@ class IdentifyResponse(BaseModel):
 
     class json_schema_extra:
         schema_extra = {
-            "example": 	{
-                "contact":{
+            "example": {
+                "contact": {
                     "primaryContatctId": 11,
-                    "emails": ["george@hillvalley.edu","biffsucks@hillvalley.edu"],
-                    "phoneNumbers": ["919191","717171"],
-                    "secondaryContactIds": [27]
+                    "emails": ["george@hillvalley.edu", "biffsucks@hillvalley.edu"],
+                    "phoneNumbers": ["919191", "717171"],
+                    "secondaryContactIds": [27],
                 }
-	        }
+            }
         }

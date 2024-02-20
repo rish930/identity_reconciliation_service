@@ -125,3 +125,21 @@ class TestIdentify:
         respone = self.client.post(url=self._url, json=_request)
 
         assert respone.status_code==422
+
+    def test_identify_create_convert_primary_to_secondary_update_all_secondary(self, secondary_contact):
+        second_primary = Contact(email="secondprimary@hey.com", phonenumber="789123", linkprecedence=LinkPrecedence.PRIMARY)
+        self.session.add(second_primary)
+        self.session.commit()
+        secondary_contact.linkedid = second_primary.id
+        self.session.commit()
+
+        self.session.refresh(second_primary)
+        _request = {"email": self.primary_contact.email, "phoneNumber": second_primary.phonenumber}
+
+        contact_response = self.client.post(url=self._url, json=_request)
+        contact_response_json = contact_response.json()["contact"]
+        assert contact_response_json["primaryContactId"] == 1
+        assert contact_response_json["emails"] == [self.primary_contact.email, secondary_contact.email, second_primary.email]
+        assert contact_response_json["phoneNumbers"] == [self.primary_contact.phonenumber, second_primary.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == [secondary_contact.id, second_primary.id]
+        

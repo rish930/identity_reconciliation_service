@@ -57,14 +57,23 @@ class TestIdentify:
         assert contact_response_json["secondaryContactIds"] == [secondary_contact.id]
 
 
-    def test_identify_secondary_email_null(self, primary_contact):
+    def test_identify_secondary_email_null(self, secondary_contact):
         _request = {"email": None, "phoneNumber":123456}
         contact_response = self.client.post(url=self._url, json=_request)
         contact_response_json = contact_response.json()["contact"]
-        assert contact_response_json["primaryContactId"] == primary_contact.id
-        assert contact_response_json["emails"] == [primary_contact.email]
-        assert contact_response_json["phoneNumbers"] == [primary_contact.phonenumber]
-        assert contact_response_json["secondaryContactIds"] == []
+        assert contact_response_json["primaryContactId"] == self.primary_contact.id
+        assert contact_response_json["emails"] == [self.primary_contact.email, secondary_contact.email]
+        assert contact_response_json["phoneNumbers"] == [self.primary_contact.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == [secondary_contact.id]
+
+    def test_identify_secondary_number_null(self, secondary_contact):
+        _request = {"email": "mcfly@hillvalley.edu", "phoneNumber":None}
+        contact_response = self.client.post(url=self._url, json=_request)
+        contact_response_json = contact_response.json()["contact"]
+        assert contact_response_json["primaryContactId"] == self.primary_contact.id
+        assert contact_response_json["emails"] == [self.primary_contact.email, secondary_contact.email]
+        assert contact_response_json["phoneNumbers"] == [self.primary_contact.phonenumber]
+        assert contact_response_json["secondaryContactIds"] == [secondary_contact.id]
 
 
     def test_identify_create_new_primary(self):

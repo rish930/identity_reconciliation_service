@@ -115,20 +115,33 @@ def get_contact_by_id(id: int, db: Session):
 
 
 def get_primary_contacts(email: str, phone_number: str, db: Session):
+    """
+    returns list of unique primary contacts sorted in ascending order w.r.t id
+    """
     logging.info("Getting primary contacts")
-    if email!=None and phone_number!=None:
-        query = db.query(Contact).filter((Contact.email == email) | (Contact.phonenumber==str(phone_number)))
+    contacts = []
+    if phone_number!=None:
+        contact1 = db.query(Contact).filter(Contact.phonenumber==phone_number).first()
+        contact1 = get_oldest_primary_contact(contact=contact1, db=db)
+        if contact1:
+            contacts.append(contact1)
+    if email!=None:
+        contact2 = db.query(Contact).filter(Contact.email==email).first()
+        contact2 = get_oldest_primary_contact(contact=contact2, db=db)
+        if contact2:
+            contacts.append(contact2)
 
-    elif email==None and phone_number!=None:
-        query = db.query(Contact).filter(Contact.phonenumber==phone_number)
-    elif email!=None and phone_number==None:
-        query = db.query(Contact).filter(Contact.email==email)
-    else:
-        query = None
-    
-    if query:
-        contacts = query.filter(Contact.linkprecedence==LinkPrecedence.PRIMARY).all()
-    else:
-        contacts = []
-    
+    if len(contacts)>1:
+        contacts.sort(key= lambda x: x.id)
     return contacts
+
+
+def get_oldest_primary_contact(contact: Contact, db: Session):
+    if contact!=None:
+        if contact.linkprecedence==LinkPrecedence.PRIMARY:
+            return contact
+        else:
+            contact1 = get_contact_by_id(contact.linkedid, db)
+            return contact1
+    else:
+        return None

@@ -11,4 +11,3 @@ engine = create_engine(SQLALCHEMY_DB_URI, echo=settings.SQL_ENGINE_ECHO)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-

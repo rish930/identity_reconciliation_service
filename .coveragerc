@@ -1,0 +1,6 @@
+# .coveragerc to control coverage.py
+# https://coverage.readthedocs.io/en/6.4.3/config.html
+
+[report]
+fail_under = 95
+omit = src/config.py

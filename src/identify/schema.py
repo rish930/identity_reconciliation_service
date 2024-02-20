@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, NonNegativeInt
 from typing import List, Optional
 
 
 class IdentifyRequest(BaseModel):
     email: Optional[EmailStr] = None
-    phoneNumber: Optional[int] = None
+    phoneNumber: Optional[NonNegativeInt] = None
 
 
 class ContactDetails(BaseModel):
@@ -19,12 +19,12 @@ class IdentifyResponse(BaseModel):
 
     class json_schema_extra:
         schema_extra = {
-            "example": 	{
-                "contact":{
+            "example": {
+                "contact": {
                     "primaryContatctId": 11,
-                    "emails": ["george@hillvalley.edu","biffsucks@hillvalley.edu"],
-                    "phoneNumbers": ["919191","717171"],
-                    "secondaryContactIds": [27]
+                    "emails": ["george@hillvalley.edu", "biffsucks@hillvalley.edu"],
+                    "phoneNumbers": ["919191", "717171"],
+                    "secondaryContactIds": [27],
                 }
-	        }
+            }
         }
